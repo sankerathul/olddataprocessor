@@ -53,6 +53,7 @@ def elasticsearch_curl(uri='http://localhost:9200/', json_body='', verb='get'):
 doc = {
     "browsing_url": "https://www.yahoo.com/store/apps/details?id=com.miui.securitycenter",
     "user_uuid": "asdfasdfasdf",
+    "Catogary":"test cat",
     "input": {
       "type": "log"
     },
