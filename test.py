@@ -55,6 +55,13 @@ request_body = '''
     "exists": {
       "field": "search_query"
     }
+    "bool":{
+        "must_not":{
+            "exists":{
+                "field":"Categories.query_categories"
+            }
+        }
+    }
   }
 }
 '''
