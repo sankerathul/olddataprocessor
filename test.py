@@ -1,6 +1,7 @@
 from elasticsearch import Elasticsearch
 import logging # for debugging purposes
 import requests
+from urllib.parse import urlparse
 
 # import 'json' to convert strings to JSON format
 import json
@@ -93,39 +94,44 @@ for doc in docs:
     search_term = doc["_source"]["search_query"]
     data = doc["_source"]
 
+    browse_url = doc["_source"]["browsing_url"]
+    browse_uri = urlparse(browse_url)
+    print(browse_uri.hostname)
 
-    url = "http://slicetopiccategorisation-env-1.eba-2adpwmuq.us-east-2.elasticbeanstalk.com/categorize"
 
-    req ={
-    "_id": "someid123",
-    "queries": [search_term],
-    "country": "GB",
-    "language": "English",
-    "key": "c2xpY2UgdG9waWMgY2F0ZWdvcml6YXRpb24ga2V5",
-    "do_spell_correction": "false",
-    "consider_synonyms": "false"
-    }
 
-    req = json.dumps(req)
+    # url = "http://slicetopiccategorisation-env-1.eba-2adpwmuq.us-east-2.elasticbeanstalk.com/categorize"
 
-    headers = {
-        'Content-Type': 'application/json',
-    }
+    # req ={
+    # "_id": "someid123",
+    # "queries": [search_term],
+    # "country": "GB",
+    # "language": "English",
+    # "key": "c2xpY2UgdG9waWMgY2F0ZWdvcml6YXRpb24ga2V5",
+    # "do_spell_correction": "false",
+    # "consider_synonyms": "false"
+    # }
 
-    res = requests.post(url, headers=headers,data=req)
+    # req = json.dumps(req)
+
+    # headers = {
+    #     'Content-Type': 'application/json',
+    # }
+
+    # res = requests.post(url, headers=headers,data=req)
     
-    res = json.loads(res.text)
-    categories = res["query_categories"]
-    data["Categories"] = categories
-    data = json.dumps(data)
+    # res = json.loads(res.text)
+    # categories = res["query_categories"]
+    # data["Categories"] = categories
+    # data = json.dumps(data)
 
-    res = elasticsearch_curl(
-        'http://18.130.251.121:9200/{}/_doc/{}?pretty'.format(doc_index,doc_id),
-        verb='put',
-        json_body=data)
+    # res = elasticsearch_curl(
+    #     'http://18.130.251.121:9200/{}/_doc/{}?pretty'.format(doc_index,doc_id),
+    #     verb='put',
+    #     json_body=data)
 
-    # print(data)
-    print("\n")
-    print(res)
+    # # print(data)
+    # print("\n")
+    # print(res)
     # print(doc_id,search_term)
     # print(categories)
