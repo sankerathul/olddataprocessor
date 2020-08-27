@@ -52,9 +52,6 @@ request_body = '''
 {
   "from" : 0, "size" : 50,
   "query": {
-    "exists": {
-      "field": "search_query"
-    }
     "bool":{
         "must_not":{
             "exists":{
