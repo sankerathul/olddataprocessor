@@ -1,6 +1,7 @@
 from elasticsearch import Elasticsearch
 import logging # for debugging purposes
 import requests
+from urllib.parse import urlparse
 
 # import 'json' to convert strings to JSON format
 import json
@@ -13,18 +14,6 @@ except (ImportError, ModuleNotFoundError) as error:
     # Python 3
     print ("Python 3: Importing http.client:", error, '\n')
     import http.client as http_client
-
-# set the debug level
-http_client.HTTPConnection.debuglevel = 1
-
-# initialize the logging to have the debugger return information
-logging.basicConfig()
-logging.getLogger().setLevel(logging.DEBUG)
-
-# store the DEBUG information in a 'requests_log' variable
-requests_log = logging.getLogger("requests.packages.urllib3")
-requests_log.setLevel(logging.DEBUG)
-requests_log.propagate = True
 
 
 # function for the cURL requests
@@ -62,9 +51,27 @@ def elasticsearch_curl(uri='http://localhost:9200/', json_body='', verb='get'):
 
 request_body = '''
 {
+  "size" : 5,
   "query": {
-    "exists": {
-      "field": "Categories"
+    "bool": {
+      "should": [
+        {
+          "exists": {
+            "field": "browsing_url"
+          }
+        },
+        {
+          "bool": {
+            "must_not": [
+              {
+                "exists": {
+                  "field": "Categories.query_categories"
+                }
+              }
+            ]
+          }
+        }
+      ]
     }
   }
 }
@@ -76,18 +83,72 @@ response = elasticsearch_curl(
         json_body=request_body
 )
 
-print ('RESPONSE 3:', type(response), '\n\n')
+docs = response["hits"]["hits"]
 
-response = response["hits"]["hits"]
-
-for key in response:
-    print(type(key))
-    print(key)    
-#print(type(response[key]))
-    #print(response[key])
-    print("\n\n")
+print(len(docs))
 
 
+for doc in docs:
+    doc_id = doc["_id"]
+    doc_index = doc["_index"]
+    search_term = doc["_source"]["search_query"]
+    data = doc["_source"]
+
+    browse_url = doc["_source"]["browsing_url"]
+    browse_uri = urlparse(browse_url)
+    browse_host = browse_uri.hostname
+
+    if browse_host == 'www.google.com':
+
+        url = "http://slicetopiccategorisation-env-1.eba-2adpwmuq.us-east-2.elasticbeanstalk.com/categorize"
+
+        req ={
+        "_id": "someid123",
+        "queries": [search_term],
+        "country": "GB",
+        "language": "English",
+        "key": "c2xpY2UgdG9waWMgY2F0ZWdvcml6YXRpb24ga2V5",
+        "do_spell_correction": "false",
+        "consider_synonyms": "false"
+        }
+
+        req = json.dumps(req)
+
+        headers = {
+            'Content-Type': 'application/json',
+        }
+
+        res = requests.post(url, headers=headers,data=req)
+        
+        res = json.loads(res.text)
+        categories = res["query_categories"]
+        data["Categories"] = categories
+        data = json.dumps(data)
+
+        res = elasticsearch_curl(
+            'http://18.130.251.121:9200/{}/_doc/{}?pretty'.format(doc_index,doc_id),
+            verb='put',
+            json_body=data)
+
+        # print(data)
+        print("\n")
+        print(res)
+        print("Doc Updated with Categories")
+        print(doc_id,search_term)
+        # print(categories)
+
+    else:
+        data["Categories"] = "None"
+        data = json.dumps(data)
+        res = elasticsearch_curl(
+            'http://18.130.251.121:9200/{}/_doc/{}?pretty'.format(doc_index,doc_id),
+            verb='put',
+            json_body=data)
+        print("\n")
+        print(res)
+        print("Doc Updated with out Categories")
+        print(doc_id,search_term)
 
 
-
+        
+    
