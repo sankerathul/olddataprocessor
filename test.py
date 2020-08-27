@@ -139,6 +139,7 @@ for doc in docs:
 
     else:
         data["Categories"] = "None"
+        data = json.dumps(data)
         res = elasticsearch_curl(
             'http://18.130.251.121:9200/{}/_doc/{}?pretty'.format(doc_index,doc_id),
             verb='put',
