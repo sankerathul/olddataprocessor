@@ -50,11 +50,11 @@ def elasticsearch_curl(uri='http://localhost:9200/', json_body='', verb='get'):
 
 request_body = '''
 {
+  "from" : 0, "size" : 100,
   "query": {
     "exists": {
       "field": "search_query"
-    },
-    "size":1000
+    }
   }
 }
 '''
