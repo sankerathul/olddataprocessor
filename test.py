@@ -50,7 +50,7 @@ def elasticsearch_curl(uri='http://localhost:9200/', json_body='', verb='get'):
 
 request_body = '''
 {
-  "from" : 0, "size" : 100,
+  "from" : 0, "size" : 50,
   "query": {
     "exists": {
       "field": "search_query"
@@ -77,7 +77,9 @@ docs = response["hits"]["hits"]
 print(len(docs))
 
 
-# for doc in docs:
+for doc in docs:
+    print(doc)
+    print("\n\n")
 #     doc_id = doc["_id"]
 #     doc_index = doc["_index"]
 #     search_term = doc["_source"]["search_query"]
