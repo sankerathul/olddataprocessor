@@ -76,7 +76,7 @@ doc = json.dumps(doc)
 res = elasticsearch_curl(
         'http://18.130.251.121:9200/logstash-2020.08.27/_doc/7ZbvLnQBhweWSk-ZKOLf?pretty',
         verb='put',
-        json_body=data)
+        json_body=doc)
 
 print("\n")
 print(res)
