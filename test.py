@@ -50,14 +50,27 @@ def elasticsearch_curl(uri='http://localhost:9200/', json_body='', verb='get'):
 
 request_body = '''
 {
-  "from" : 0, "size" : 50,
+"from" : 0, "size" : 50,
   "query": {
-    "bool":{
-        "must_not":{
-            "exists":{
-                "field":"Categories.query_categories"
-            }
+    "bool": {
+      "should": [
+        {
+          "exists": {
+            "field": "browsing_url"
+          }
+        },
+        {
+          "bool": {
+            "must_not": [
+              {
+                "exists": {
+                  "field": "Categories.query_categories"
+                }
+              }
+            ]
+          }
         }
+      ]
     }
   }
 }
