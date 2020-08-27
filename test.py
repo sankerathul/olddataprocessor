@@ -131,20 +131,21 @@ for doc in docs:
             json_body=data)
 
         # print(data)
-        # print("\n")
-        # print(res)
+        print("\n")
+        print(res)
         print("Doc Updated with Categories")
         print(doc_id,search_term)
         # print(categories)
 
     else:
-        print("Doc Updated with out Categories")
         data["Categories"] = "None"
         res = elasticsearch_curl(
             'http://18.130.251.121:9200/{}/_doc/{}?pretty'.format(doc_index,doc_id),
             verb='put',
             json_body=data)
-    
+        print("\n")
+        print(res)
+        print("Doc Updated with out Categories")
         print(doc_id,search_term)
 
 
