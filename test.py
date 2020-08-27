@@ -96,7 +96,13 @@ for doc in docs:
 
     browse_url = doc["_source"]["browsing_url"]
     browse_uri = urlparse(browse_url)
-    print(browse_uri.hostname)
+    browse_host = browse_uri.hostname
+
+    if browse_host == 'www.google.com':
+        None
+    else:
+        print(browse_host)
+    
 
 
 
