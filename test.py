@@ -51,7 +51,7 @@ def elasticsearch_curl(uri='http://localhost:9200/', json_body='', verb='get'):
 
 request_body = '''
 {
-  size" : 5,
+  "size" : 5,
   "query": {
     "bool": {
       "should": [
