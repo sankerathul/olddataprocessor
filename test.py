@@ -53,7 +53,8 @@ request_body = '''
   "query": {
     "exists": {
       "field": "search_query"
-    }
+    },
+    "size":1000
   }
 }
 '''
