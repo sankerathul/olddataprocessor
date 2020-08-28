@@ -66,7 +66,7 @@ request_body = '''
             "must_not": [
               {
                 "exists": {
-                  "field": "Categories.query_categories"
+                  "field": "Categories"
                 }
               }
             ]
