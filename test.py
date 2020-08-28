@@ -139,7 +139,7 @@ for doc in docs:
         # print(categories)
 
     else:
-        data["Categories"] = dict
+        data["Categories"] = {"Script":"Processed"}
         data = json.dumps(data)
         res = elasticsearch_curl(
             'http://18.130.251.121:9200/{}/_doc/{}?pretty'.format(doc_index,doc_id),
