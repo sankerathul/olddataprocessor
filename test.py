@@ -50,173 +50,175 @@ def elasticsearch_curl(uri='http://localhost:9200/', json_body='', verb='get'):
 
 
 
-doc = {
-    "browsing_url": "https://www.yahoo.com/store/apps/details?id=com.miui.securitycenter",
-    "user_uuid": "asdfasdfasdf",
-    "Catogary_dic":{
-  "intents": [
-    {
-      "score": 100,
-      "intent": "Informational"
-    },
-    {
-      "score": 100,
-      "intent": "Commercial"
-    },
-    {
-      "score": 0,
-      "intent": "Transactional"
-    }
-  ],
-  "query": "which is best rum",
-  "categories": [
-    {
-      "children": [
+request_body = '''
+{
+  "size" : 5,
+  "query": {
+    "bool": {
+      "should": [
         {
-          "children": [
-            {
-              "children": [],
-              "name": "Commercial"
-            }
-          ],
-          "name": "Intent"
+          "exists": {
+            "field": "browsing_url"
+          }
+        },
+        {
+          "bool": {
+            "must_not": [
+              {
+                "exists": {
+                  "field": "Categories.query_categories"
+                }
+              }
+            ]
+          }
         }
-      ],
-      "name": "Classification"
+      ]
     }
-  ],
-  "categories_v2": [
-    "Classification/Intent/Commercial"
-  ]
-},
-    "input": {
-      "type": "log"
-    },
-    "source": "/home/ubuntu/shared_files/test_file.txt",
-    "offset": 2440,
-    "@version": "1",
-    "search_query": "which is best whisky",
-    "@timestamp": "2020-08-27T08:00:57.032Z",
-    "timestamp_string": "1595479713622",
-    "prospector": {
-      "type": "log"
-    },
-    "tags": [
-      "beats_input_codec_plain_applied",
-      "_dateparsefailure"
-    ]
   }
+}
+'''
 
-doc = json.dumps(doc)
+response = elasticsearch_curl(
+        'http://18.130.251.121:9200/_search?pretty',
+        verb='get',
+        json_body=request_body
+)
 
-res = elasticsearch_curl(
-        'http://18.130.251.121:9200/logstash-2020.08.27/_doc/7ZbvLnQBhweWSk-ZKOLf?pretty',
-        verb='put',
-        json_body=doc)
+docs = response["hits"]["hits"]
 
-print("\n")
-print(res)
-
-# request_body = '''
-# {
-#   "size" : 5,
-#   "query": {
-#     "bool": {
-#       "should": [
-#         {
-#           "exists": {
-#             "field": "browsing_url"
-#           }
-#         },
-#         {
-#           "bool": {
-#             "must_not": [
-#               {
-#                 "exists": {
-#                   "field": "Categories.query_categories"
-#                 }
-#               }
-#             ]
-#           }
-#         }
-#       ]
-#     }
-#   }
-# }
-# '''
-
-# response = elasticsearch_curl(
-#         'http://18.130.251.121:9200/_search?pretty',
-#         verb='get',
-#         json_body=request_body
-# )
-
-# docs = response["hits"]["hits"]
-
-# print(len(docs))
+print(len(docs))
 
 
-# for doc in docs:
-#     doc_id = doc["_id"]
-#     doc_index = doc["_index"]
-#     search_term = doc["_source"]["search_query"]
-#     data = doc["_source"]
+for doc in docs:
+    doc_id = doc["_id"]
+    print(doc_id)
+    # doc_index = doc["_index"]
+    # search_term = doc["_source"]["search_query"]
+    # data = doc["_source"]
 
-#     browse_url = doc["_source"]["browsing_url"]
-#     browse_uri = urlparse(browse_url)
-#     browse_host = browse_uri.hostname
+    # browse_url = doc["_source"]["browsing_url"]
+    # browse_uri = urlparse(browse_url)
+    # browse_host = browse_uri.hostname
 
-#     if browse_host == 'www.google.com':
+    # if browse_host == 'www.google.com':
 
-#         url = "http://slicetopiccategorisation-env-1.eba-2adpwmuq.us-east-2.elasticbeanstalk.com/categorize"
+    #     url = "http://slicetopiccategorisation-env-1.eba-2adpwmuq.us-east-2.elasticbeanstalk.com/categorize"
 
-#         req ={
-#         "_id": "someid123",
-#         "queries": [search_term],
-#         "country": "GB",
-#         "language": "English",
-#         "key": "c2xpY2UgdG9waWMgY2F0ZWdvcml6YXRpb24ga2V5",
-#         "do_spell_correction": "false",
-#         "consider_synonyms": "false"
-#         }
+    #     req ={
+    #     "_id": "someid123",
+    #     "queries": [search_term],
+    #     "country": "GB",
+    #     "language": "English",
+    #     "key": "c2xpY2UgdG9waWMgY2F0ZWdvcml6YXRpb24ga2V5",
+    #     "do_spell_correction": "false",
+    #     "consider_synonyms": "false"
+    #     }
 
-#         req = json.dumps(req)
+    #     req = json.dumps(req)
 
-#         headers = {
-#             'Content-Type': 'application/json',
-#         }
+    #     headers = {
+    #         'Content-Type': 'application/json',
+    #     }
 
-#         res = requests.post(url, headers=headers,data=req)
+    #     res = requests.post(url, headers=headers,data=req)
         
-#         res = json.loads(res.text)
-#         categories = res["query_categories"]
-#         data["Categories"] = categories
-#         data = json.dumps(data)
+    #     res = json.loads(res.text)
+    #     categories = res["query_categories"]
+    #     data["Categories"] = categories
+    #     data = json.dumps(data)
 
-#         res = elasticsearch_curl(
-#             'http://18.130.251.121:9200/{}/_doc/{}?pretty'.format(doc_index,doc_id),
-#             verb='put',
-#             json_body=data)
+    #     res = elasticsearch_curl(
+    #         'http://18.130.251.121:9200/{}/_doc/{}?pretty'.format(doc_index,doc_id),
+    #         verb='put',
+    #         json_body=data)
 
-#         # print(data)
-#         print("\n")
-#         print(res)
-#         print("Doc Updated with Categories")
-#         print(doc_id,search_term)
-#         # print(categories)
+    #     # print(data)
+    #     print("\n")
+    #     print(res)
+    #     print("Doc Updated with Categories")
+    #     print(doc_id,search_term)
+    #     # print(categories)
 
-#     else:
-#         data["Categories"] = "None"
-#         data = json.dumps(data)
-#         res = elasticsearch_curl(
-#             'http://18.130.251.121:9200/{}/_doc/{}?pretty'.format(doc_index,doc_id),
-#             verb='put',
-#             json_body=data)
-#         print("\n")
-#         print(res)
-#         print("Doc Updated with out Categories")
-#         print(doc_id,search_term)
+    # else:
+    #     data["Categories"] = "None"
+    #     data = json.dumps(data)
+    #     res = elasticsearch_curl(
+    #         'http://18.130.251.121:9200/{}/_doc/{}?pretty'.format(doc_index,doc_id),
+    #         verb='put',
+    #         json_body=data)
+    #     print("\n")
+    #     print(res)
+    #     print("Doc Updated with out Categories")
+    #     print(doc_id,search_term)
 
 
         
     
+
+
+# doc = {
+#     "browsing_url": "https://www.yahoo.com/store/apps/details?id=com.miui.securitycenter",
+#     "user_uuid": "asdfasdfasdf",
+#     "Catogary_dic":{
+#   "intents": [
+#     {
+#       "score": 100,
+#       "intent": "Informational"
+#     },
+#     {
+#       "score": 100,
+#       "intent": "Commercial"
+#     },
+#     {
+#       "score": 0,
+#       "intent": "Transactional"
+#     }
+#   ],
+#   "query": "which is best rum",
+#   "categories": [
+#     {
+#       "children": [
+#         {
+#           "children": [
+#             {
+#               "children": [],
+#               "name": "Commercial"
+#             }
+#           ],
+#           "name": "Intent"
+#         }
+#       ],
+#       "name": "Classification"
+#     }
+#   ],
+#   "categories_v2": [
+#     "Classification/Intent/Commercial"
+#   ]
+# },
+#     "input": {
+#       "type": "log"
+#     },
+#     "source": "/home/ubuntu/shared_files/test_file.txt",
+#     "offset": 2440,
+#     "@version": "1",
+#     "search_query": "which is best whisky",
+#     "@timestamp": "2020-08-27T08:00:57.032Z",
+#     "timestamp_string": "1595479713622",
+#     "prospector": {
+#       "type": "log"
+#     },
+#     "tags": [
+#       "beats_input_codec_plain_applied",
+#       "_dateparsefailure"
+#     ]
+#   }
+
+# doc = json.dumps(doc)
+
+# res = elasticsearch_curl(
+#         'http://18.130.251.121:9200/logstash-2020.08.27/_doc/7ZbvLnQBhweWSk-ZKOLf?pretty',
+#         verb='put',
+#         json_body=doc)
+
+# print("\n")
+# print(res)
